@@ -86,8 +86,10 @@ pipeline {
                             for(int i = 0; i < qcList.size(); i++){
                                 String qcId = qcList[i]
                                 if(qcId.length() > 2){
-                                    def di =  sh(script: "aws connect describe-routing-profile --instance-id ${INSTANCEARN} --queue-id ${qcId}", returnStdout: true).trim()
+                                    def di =  sh(script: "aws connect describe-routing-profile --instance-id ${INSTANCEARN} --routing-profile-id ${qcId}", returnStdout: true).trim()
                                     echo di
+                                    def dq =  sh(script: "aws connect list-routing-profile-queues --instance-id ${INSTANCEARN} ", returnStdout: true).trim()
+                                    echo dq
                                     def qc = jsonParse(di)
                                     String qcName = qc.RoutingProfile.Name
                                     String qcDesc = qc.RoutingProfile.Description
@@ -157,8 +159,16 @@ pipeline {
      }
 }
 
-def checkConncurrency(def channel) {
-    
+def checkConncurrency(def mc, def channel ) {
+    String cc = ""
+    for (int i = 0; i < mc.size(); i ++) {
+        def obj = mc[i]
+        if(obj.Channel.equals(channel)) {
+            cc = obj.Concurrency
+            break
+        }
+    }
+    return cc
 }
 
 @NonCPS
@@ -172,8 +182,8 @@ def toJSON(def json) {
 
 def checkList(qcName, tl) {
     boolean qcFound = false
-    for(int i = 0; i < tl.QueueSummaryList.size(); i++){
-        def obj2 = tl.QueueSummaryList[i]
+    for(int i = 0; i < tl.RoutingProfileSummaryList.size(); i++){
+        def obj2 = tl.RoutingProfileSummaryList[i]
         String qcName2 = obj2.Name
         if(qcName2.equals(qcName)) {
             qcFound = true
@@ -183,40 +193,15 @@ def checkList(qcName, tl) {
     return qcFound
 }
 
-def getFlowId (primary, flowId, target) {
-    def pl = jsonParse(primary)
-    def tl = jsonParse(target)
-    String fName = ""
-    String rId = ""
-    println "Searching for flowId : $flowId"
-    for(int i = 0; i < pl.ContactFlowSummaryList.size(); i++){
-        def obj = pl.ContactFlowSummaryList[i]    
-        if (obj.Id.equals(flowId)) {
-            fName = obj.Name
-            println "Found flow name : $fName"
-            break
-        }
-    }
-    println "Searching for flow name : $fName"        
-    for(int i = 0; i < tl.ContactFlowSummaryList.size(); i++){
-        def obj = tl.ContactFlowSummaryList[i]    
-        if (obj.Name.equals(fName)) {
-            rId = obj.Id
-            println "Found flow id : $rId"
-            break
-        }
-    }
-    return rId
-}
 
-def getQuickConnectId (primary, name, target) {
+def getQueue (primary, name, target) {
     def pl = jsonParse(primary)
     def tl = jsonParse(target)
     String fName = name
     String rId = ""
     echo "Find for name : ${fName}"       
-    for(int i = 0; i < tl.QuickConnectSummaryList.size(); i++){
-        def obj = tl.QuickConnectSummaryList[i]    
+    for(int i = 0; i < tl.QueueSummaryList.size(); i++){
+        def obj = tl.QueueSummaryList[i]    
         if (obj.Name.equals(fName)) {
             rId = obj.Id
             println "Found id : $rId"
@@ -227,30 +212,4 @@ def getQuickConnectId (primary, name, target) {
     
 }
 
-def getHopId (primary, userId, target) {
-    def pl = jsonParse(primary)
-    def tl = jsonParse(target)
-    String fName = ""
-    String rId = ""
-    println "Searching for userId : $userId"
-    for(int i = 0; i < pl.HoursOfOperationSummaryList.size(); i++){
-        def obj = pl.HoursOfOperationSummaryList[i]    
-        if (obj.Id.equals(userId)) {
-            fName = obj.Name
-            println "Found name : $fName"
-            break
-        }
-    }
-    println "Searching for Id for : $fName"        
-    for(int i = 0; i < tl.HoursOfOperationSummaryList.size(); i++){
-        def obj = tl.HoursOfOperationSummaryList[i]    
-        if (obj.Name.equals(fName)) {
-            rId = obj.Id
-            println "Found Id : $rId"
-            break
-        }
-    }
-    return rId
-    
-}
 
