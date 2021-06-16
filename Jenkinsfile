@@ -96,47 +96,9 @@ pipeline {
                                     String chatcc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "CHAT")
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
-                                    def ouboundFlowId 
-                                    def qcCallerName
-                                    if(qc.Queue.OutboundCallerConfig) {
-                                        if(qc.Queue.OutboundCallerConfig.OutboundFlowId) {
-                                            ouboundFlowId = getFlowId (PRIMARYCFS, qc.Queue.OutboundCallerConfig.OutboundFlowId, TARGETCFS)  
-                                        }
-                                        if(qc.Queue.OutboundCallerConfig.OutboundCallerIdName ) {
-                                            qcCallerName = qc.Queue.OutboundCallerConfig.OutboundCallerIdName 
-                                        }                                                                      
-                                    }
-
-                                    String hopId
-                                    if(qc.Queue.HoursOfOperationId) {
-                                        hopId = getHopId (PRIMARYHOP, qc.Queue.HoursOfOperationId, TARGETHOP)                                        
-                                    }
-                                    String maxContacts = ""
-                                    if(qc.Queue.MaxContacts ) {
-                                        maxContacts = " --max-contacts " + qc.Queue.MaxContacts 
-                                    }
-                                    String status = qc.Queue.Status 
-                                    qc = null
-                                    
-                                    String outBoundConfig = "--outbound-caller-config \'"
-                                    boolean nameEnabled = false
-                                    boolean obConfigEnabled = false
-                                    if(qcCallerName) {
-                                        outBoundConfig = outBoundConfig.concat("OutboundCallerIdName=").concat(qcCallerName)
-                                        nameEnabled = true
-                                        obConfigEnabled = true
-                                    }
-                                    if(ouboundFlowId) {
-                                        obConfigEnabled = true
-                                        if(nameEnabled) {
-                                            outBoundConfig = outBoundConfig.concat(",OutboundFlowId=").concat(ouboundFlowId)
-                                        } else {
-                                            outBoundConfig = outBoundConfig.concat("OutboundFlowId=").concat(ouboundFlowId)
-                                        }
-                                    }
-                                    if(obConfigEnabled) {
-                                        outBoundConfig = outBoundConfig.concat("\'")
-                                    }
+                                    String obQueue = "--default-outbound-queue-id "
+                                    obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
+                                                   
                                     def cq =  sh(script: "aws connect create-queue --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" --hours-of-operation-id ${hopId} ${maxContacts} ${quickConnectConfig} ${outBoundConfig} " , returnStdout: true).trim()
                                     echo cq
                                }
