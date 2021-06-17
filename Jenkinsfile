@@ -98,7 +98,7 @@ pipeline {
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
                                     String obQueue = "--default-outbound-queue-id "
-                                    obQueue = obQueue + getQueue(PRIMARYQUEUES, qc.RoutingProfile.Name, TARGETQUEUES)
+                                    obQueue = obQueue + getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES)
                                     echo obQueue
                                     def mc = "[{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
                                     mc = mc + "{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "},"                
@@ -182,11 +182,21 @@ def checkList(qcName, tl) {
 }
 
 
-def getQueue (primary, name, target) {
+def getQueue (primary, searchId, target) {
     def pl = jsonParse(primary)
     def tl = jsonParse(target)
-    String fName = name
+    String fName = ""
     String rId = ""
+    echo "Find for Id : ${searchId}"       
+    for(int i = 0; i < pl.QueueSummaryList.size(); i++){
+        def obj = pl.QueueSummaryList[i]    
+        if (obj.Id.equals(searchId)) {
+            fName = obj.Name
+            println "Found name : $fName"
+            break
+        }
+    }
+    
     echo "Find for name : ${fName}"       
     for(int i = 0; i < tl.QueueSummaryList.size(); i++){
         def obj = tl.QueueSummaryList[i]    
@@ -196,6 +206,7 @@ def getQueue (primary, name, target) {
             break
         }
     }
+    
     return rId
     
 }
