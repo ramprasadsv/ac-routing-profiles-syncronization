@@ -110,6 +110,7 @@ pipeline {
                                     def rpQueueList = getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
                                     json = toJSON(rpQueueList)
                                     rpQueueList = "--queue-configs " + json     
+									echo rpQueueList
                                     rpq = null
                                     qc = null
                                     def cq =  sh(script: "aws connect create-routing-profile --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description ${qcDesc} ${obQueue} ${mc} ${rpQueueList}  " , returnStdout: true).trim()
