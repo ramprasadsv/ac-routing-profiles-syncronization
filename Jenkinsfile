@@ -88,7 +88,7 @@ pipeline {
                                 if(qcId.length() > 2){
                                     def di =  sh(script: "aws connect describe-routing-profile --instance-id ${INSTANCEARN} --routing-profile-id ${qcId}", returnStdout: true).trim()
                                     echo di
-                                    def dq =  sh(script: "aws connect list-routing-profile-queues --instance-id ${INSTANCEARN} ", returnStdout: true).trim()
+                                    def dq =  sh(script: "aws connect list-routing-profile-queues --instance-id ${INSTANCEARN} --routing-profile-id ${qcId}", returnStdout: true).trim()
                                     echo dq
                                     def qc = jsonParse(di)
                                     def rpq = jsonParse(dq)
