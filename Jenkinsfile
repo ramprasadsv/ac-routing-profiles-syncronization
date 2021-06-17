@@ -222,6 +222,7 @@ def getQueueIdByName (primary, name, target) {
         def obj = tl.QueueSummaryList[i]    
         if (obj.Name.equals(name)) {
             fName = obj.Name
+            rId = obj.Id
             println "Found name : $fName"
             break
         }
