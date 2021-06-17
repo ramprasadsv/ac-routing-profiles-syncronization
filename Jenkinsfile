@@ -98,7 +98,7 @@ pipeline {
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASK")
                                     String obQueue = "--default-outbound-queue-id "
-                                    obQueue = obQueue + getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES)
+                                    obQueue = obQueue + getQueueId (PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES)
                                     echo obQueue
                                     def mc = "[{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
                                     mc = mc + "{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "},"                
@@ -138,7 +138,7 @@ def getRPQueueList(def qList, def pq, def tq) {
     String ql = "["
     for(int i=0; i < qList.RoutingProfileQueueConfigSummaryList.size(); i++) {
         def obj = qList.RoutingProfileQueueConfigSummaryList[i]
-        def q = getQueue(pq, obj.QueueName, tq)
+        def q = getQueueIdByName(pq, obj.QueueName, tq)
         String s = '{\"QueueReference\":{\"Channel\":\"' + obj.Channel + '\",\"QueueId\":\"' + q + '\"},\"Priority\":' + obj.Priority + ',\"Delay\":' + obj.Delay + '},'
         ql = ql + s                
     }
@@ -182,7 +182,7 @@ def checkList(qcName, tl) {
 }
 
 
-def getQueue (primary, searchId, target) {
+def getQueueId (primary, searchId, target) {
     def pl = jsonParse(primary)
     def tl = jsonParse(target)
     String fName = ""
@@ -211,4 +211,22 @@ def getQueue (primary, searchId, target) {
     
 }
 
+
+def getQueueIdByName (primary, name, target) {
+    def pl = jsonParse(primary)
+    def tl = jsonParse(target)
+    String fName = ""
+    String rId = ""
+    echo "Find for Id : ${searchId}"       
+    for(int i = 0; i < tl.QueueSummaryList.size(); i++){
+        def obj = tl.QueueSummaryList[i]    
+        if (obj.Name.equals(name)) {
+            fName = obj.Name
+            println "Found name : $fName"
+            break
+        }
+    }
+    return rId
+    
+}
 
