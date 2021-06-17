@@ -96,7 +96,7 @@ pipeline {
                                     String qcDesc = "'" + qc.RoutingProfile.Description + "'"
                                     String chatcc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "CHAT")
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
-                                    String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
+                                    String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASK")
                                     String obQueue = "--default-outbound-queue-id "
                                     obQueue = obQueue + getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES)
                                     echo obQueue
