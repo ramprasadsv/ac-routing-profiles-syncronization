@@ -92,8 +92,8 @@ pipeline {
                                     echo dq
                                     def qc = jsonParse(di)
                                     def rpq = jsonParse(dq)
-                                    String qcName = "'" + qc.RoutingProfile.Name + "'"
-                                    String qcDesc = "'" + qc.RoutingProfile.Description + "'"
+                                    String qcName = "\'" + qc.RoutingProfile.Name + "\'"
+                                    String qcDesc = "\'" + qc.RoutingProfile.Description + "\'"
                                     String chatcc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "CHAT")
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASK")
