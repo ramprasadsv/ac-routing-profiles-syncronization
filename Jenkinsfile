@@ -134,7 +134,7 @@ def getRPQueueList(def qList, def pq, def tq) {
     String ql = "["
     for(int i=0; i < qList.RoutingProfileQueueConfigSummaryList.size(); i++) {
         def obj = qList.RoutingProfileQueueConfigSummaryList[i]
-        def q = getQueue(obj.QueueName, pq, tq)
+        def q = getQueue(pq, obj.QueueName, tq)
         String s = '{\"QueueReference\":{\"Channel\":\"' + obj.Channel + '\"QueueId\":\"' + q + '\"},\"Priority\":' + obj.Priority + ',\"Delay\":\"' + obj.Delay + '},'
         ql = ql + s                
     }
