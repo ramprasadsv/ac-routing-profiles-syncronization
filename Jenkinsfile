@@ -91,15 +91,24 @@ pipeline {
                                     def dq =  sh(script: "aws connect list-routing-profile-queues --instance-id ${INSTANCEARN} ", returnStdout: true).trim()
                                     echo dq
                                     def qc = jsonParse(di)
+                                    def rpq = jsonParse(dq)
                                     String qcName = qc.RoutingProfile.Name
                                     String qcDesc = qc.RoutingProfile.Description
                                     String chatcc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "CHAT")
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
                                     String obQueue = "--default-outbound-queue-id "
-                                    obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
-                                                   
-                                    def cq =  sh(script: "aws connect create-queue --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" --hours-of-operation-id ${hopId} ${maxContacts} ${quickConnectConfig} ${outBoundConfig} " , returnStdout: true).trim()
+                                    obQueue = obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
+                                    
+                                    def mc = "--media-concurrencies [\{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "\},"                
+                                    mc = mc + "\{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "\},"                
+                                    mc = mc + "\{\"Channel\":\"TASK\",\"Concurrency\":" + taskscc + "\}]"                                                  
+                                    
+                                    def rpQueueList = "--queue-configs " + getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
+                                    
+                                    rpq = null
+                                    qc = null
+                                    def cq =  sh(script: "aws connect create-routing-profile --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" ${obQueue} ${mc} ${quickConnectConfig}  " , returnStdout: true).trim()
                                     echo cq
                                }
                             }
@@ -121,8 +130,21 @@ pipeline {
      }
 }
 
+def getRPQueueList(def qList, def pq, def tq) {
+    String ql = "["
+    for(int i=0; i < qList.RoutingProfileQueueConfigSummaryList.size(); i++) {
+        def obj = qList.RoutingProfileQueueConfigSummaryList[i]
+        def q = getQueue(obj.QueueName, pq, tq)
+        String s = '\{\"QueueReference\":{\"Channel\":\"' + obj.Channel + '\"QueueId\":\"' + q + '\"},\"Priority\":' + obj.Priority + ',\"Delay\":\"' + obj.Delay + '\},'
+        ql = ql + s                
+    }
+    ql = ql.substring(0, ql.length() - 1) 
+    ql = ql + "]"
+    return ql
+}
+
 def checkConncurrency(def mc, def channel ) {
-    String cc = ""
+    String cc = "0"
     for (int i = 0; i < mc.size(); i ++) {
         def obj = mc[i]
         if(obj.Channel.equals(channel)) {
