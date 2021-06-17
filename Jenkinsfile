@@ -109,6 +109,7 @@ pipeline {
                                     mc = "--media-concurrencies " + json
                                     def rpQueueList = getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
                                     json = toJSON(rpQueueList)
+									echo json
                                     rpQueueList = "--queue-configs " + json     
 									echo rpQueueList
                                     rpq = null
