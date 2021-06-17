@@ -100,9 +100,9 @@ pipeline {
                                     String obQueue = "--default-outbound-queue-id "
                                     obQueue = obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
                                     
-                                    def mc = "--media-concurrencies [\{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "\},"                
-                                    mc = mc + "\{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "\},"                
-                                    mc = mc + "\{\"Channel\":\"TASK\",\"Concurrency\":" + taskscc + "\}]"                                                  
+                                    def mc = "--media-concurrencies [{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
+                                    mc = mc + "{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "},"                
+                                    mc = mc + "{\"Channel\":\"TASK\",\"Concurrency\":" + taskscc + "}]"                                                  
                                     
                                     def rpQueueList = "--queue-configs " + getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
                                     
@@ -135,7 +135,7 @@ def getRPQueueList(def qList, def pq, def tq) {
     for(int i=0; i < qList.RoutingProfileQueueConfigSummaryList.size(); i++) {
         def obj = qList.RoutingProfileQueueConfigSummaryList[i]
         def q = getQueue(obj.QueueName, pq, tq)
-        String s = '\{\"QueueReference\":{\"Channel\":\"' + obj.Channel + '\"QueueId\":\"' + q + '\"},\"Priority\":' + obj.Priority + ',\"Delay\":\"' + obj.Delay + '\},'
+        String s = '{\"QueueReference\":{\"Channel\":\"' + obj.Channel + '\"QueueId\":\"' + q + '\"},\"Priority\":' + obj.Priority + ',\"Delay\":\"' + obj.Delay + '},'
         ql = ql + s                
     }
     ql = ql.substring(0, ql.length() - 1) 
