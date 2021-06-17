@@ -217,7 +217,7 @@ def getQueueIdByName (primary, name, target) {
     def tl = jsonParse(target)
     String fName = ""
     String rId = ""
-    echo "Find for Id : ${searchId}"       
+    echo "Find for name : ${name}"       
     for(int i = 0; i < tl.QueueSummaryList.size(); i++){
         def obj = tl.QueueSummaryList[i]    
         if (obj.Name.equals(name)) {
