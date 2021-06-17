@@ -108,7 +108,7 @@ pipeline {
                                     
                                     rpq = null
                                     qc = null
-                                    def cq =  sh(script: "aws connect create-routing-profile --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" ${obQueue} ${mc} ${quickConnectConfig}  " , returnStdout: true).trim()
+                                    def cq =  sh(script: "aws connect create-routing-profile --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" ${obQueue} ${mc} ${rpQueueList}  " , returnStdout: true).trim()
                                     echo cq
                                }
                             }
