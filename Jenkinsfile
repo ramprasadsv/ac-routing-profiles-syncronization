@@ -92,20 +92,24 @@ pipeline {
                                     echo dq
                                     def qc = jsonParse(di)
                                     def rpq = jsonParse(dq)
-                                    String qcName = qc.RoutingProfile.Name
-                                    String qcDesc = qc.RoutingProfile.Description
+                                    String qcName = "'" + qc.RoutingProfile.Name + "'"
+                                    String qcDesc = "'" + qc.RoutingProfile.Description + "'"
                                     String chatcc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "CHAT")
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
                                     String obQueue = "--default-outbound-queue-id "
                                     obQueue = obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
                                     
-                                    def mc = "--media-concurrencies [{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
+                                    def mc = "[{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
                                     mc = mc + "{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "},"                
                                     mc = mc + "{\"Channel\":\"TASK\",\"Concurrency\":" + taskscc + "}]"                                                  
-                                    
-                                    def rpQueueList = "--queue-configs " + getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
-                                    
+                                    echo mc
+                                    String json = toJSON(mc)
+                                    echo json
+                                    mc = "--media-concurrencies " + json
+                                    def rpQueueList = getRPQueueList(rpq, PRIMARYQUEUES, TARGETQUEUES)
+                                    json = toJSON(rpQueueList)
+                                    rpQueueList = "--queue-configs " + json     
                                     rpq = null
                                     qc = null
                                     def cq =  sh(script: "aws connect create-routing-profile --instance-id ${TRAGETINSTANCEARN} --name ${qcName} --description \"${qcDesc}\" ${obQueue} ${mc} ${rpQueueList}  " , returnStdout: true).trim()
