@@ -98,7 +98,7 @@ pipeline {
                                     String voicecc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "VOICE")
                                     String taskscc = checkConncurrency(qc.RoutingProfile.MediaConcurrencies, "TASKS")
                                     String obQueue = "--default-outbound-queue-id "
-                                    obQueue = obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.DefaultOutboundQueueId, TARGETQUEUES))
+                                    obQueue = obQueue.concat(getQueue(PRIMARYQUEUES, qc.RoutingProfile.Name, TARGETQUEUES))
                                     
                                     def mc = "[{\"Channel\":\"VOICE\",\"Concurrency\":" + voicecc + "},"                
                                     mc = mc + "{\"Channel\":\"CHAT\",\"Concurrency\":" + chatcc + "},"                
